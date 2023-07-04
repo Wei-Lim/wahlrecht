@@ -1,0 +1,82 @@
+---
+title: "Webscraper wahlrecht.de - Darstellung von Umfragewerte"
+author: "William Truong"
+date: "14.11.2020"
+output:
+  html_document:
+    number_sections: yes
+    toc: yes
+    toc_collapsed: yes
+    toc_depth: 5
+    toc_float: yes
+  pdf_document:
+    toc: yes
+    toc_depth: '5'
+    latex_engine: lualatex
+editor_options:
+  chunk_output_type: inline
+---
+
+# Header
+```{r header, echo = FALSE}
+rm(list=ls(all = TRUE))
+rm(list=ls())
+cat("\014")
+
+
+```
+
+
+## Library
+```{r library, warning = FALSE, message = FALSE}
+library(ggplot2)
+library(rvest)
+library(tidyverse)
+library(XML)
+```
+
+# Webscraping wahlrecht.de
+
+## Sonntagsfrage
+
+Getting table from webpage
+```{r}
+url <- "https://www.wahlrecht.de/umfragen/allensbach.htm"
+lines <- readLines(url, encoding = "UTF-8")
+n1 <- grep("<table", lines)
+n2 <- grep("</table", lines)
+table <- lines[n1[2]:n2[2]]
+table
+```
+
+
+```{r}
+n1 <- grep("<tr>", table)
+n2 <- grep("</tr>", table)
+tr <- table[n1[1]:n2[1]]
+idx <- grepl("h>&nbsp;", tr)
+tr
+test <- tr[!idx]
+test <- str_replace(test, "&nbsp", "Test")
+
+t1 <- paste(test, collapse = "") %>% 
+  read_html(encoding = "UTF-8")
+```
+
+```{r}
+idx <- grepl("<th class", tr)
+th_class <- tr[idx]
+```
+
+```{r}
+
+paste(th_class, collapse = "") %>% 
+  read_xml(encoding = "UTF-8")
+```
+
+
+
+## R Session Info
+```{r}
+sessionInfo()
+```
